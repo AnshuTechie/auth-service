@@ -6,6 +6,8 @@ package com.authentication.auth_service.controller;
 //import com.authservice.dto.AuthResponse;
 //import com.authservice.service.AuthService;
 import com.authentication.auth_service.dto.AuthResponse;
+import com.authentication.auth_service.dto.LoginRequest;
+import com.authentication.auth_service.dto.LoginResponse;
 import com.authentication.auth_service.dto.RegisterRequest;
 import com.authentication.auth_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +24,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 }

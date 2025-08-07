@@ -1,11 +1,14 @@
 package com.authentication.auth_service.service;
 
 import com.authentication.auth_service.dto.AuthResponse;
+import com.authentication.auth_service.dto.LoginRequest;
+import com.authentication.auth_service.dto.LoginResponse;
 import com.authentication.auth_service.dto.RegisterRequest;
 import com.authentication.auth_service.exception.EmailAlreadyExistsException;
 import com.authentication.auth_service.model.Role;
 import com.authentication.auth_service.model.User;
 import com.authentication.auth_service.repository.UserRepository;
+import com.authentication.auth_service.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,8 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+
 
     public AuthResponse register(RegisterRequest request) {
 
@@ -41,60 +46,18 @@ public class AuthService {
         // ✅ Return response
         return new AuthResponse("User registered successfully", user.getEmail());
     }
-}
+    public LoginResponse login(LoginRequest request) {
 
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
+        }
 
-/*package com.authentication.auth_service.service;
+        String jwt = jwtUtil.generateToken(user);
 
-
-
-//import com.authentication.auth_service.service.dto.AuthResponse;
-//import com.authservice.dto.RegisterRequest;
-//import com.authservice.model.Role;
-//import com.authservice.model.User;
-//import com.authservice.repository.UserRepository;
-import com.authentication.auth_service.dto.AuthResponse;
-import com.authentication.auth_service.dto.RegisterRequest;
-import com.authentication.auth_service.model.Role;
-import com.authentication.auth_service.model.User;
-import com.authentication.auth_service.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-@Service
-@RequiredArgsConstructor
-public class AuthService {
-
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-
-//    private final UserRepository userRepository;
-//    private final BCryptPasswordEncoder passwordEncoder;
-
-    public AuthResponse register(RegisterRequest request) {
-        // Check if user already exists
-        userRepository.findByEmail(request.getEmail()).ifPresent(u -> {
-            throw new RuntimeException("User already exists");
-        });
-
-        // Hash the password
-        String hashedPassword = passwordEncoder.encode(request.getPassword());
-
-        // Build user object
-        User user = User.builder()
-                .email(request.getEmail())
-                .username(request.getUsername())
-                .password(hashedPassword)
-                .role(Role.USER) // default role
-                .build();
-
-        // Save to DB
-        userRepository.save(user);
-
-        return new AuthResponse("User registered successfully", user.getEmail());
+        return new LoginResponse(jwt, user.getEmail(), user.getRole().name());
     }
+
 }
-*/
