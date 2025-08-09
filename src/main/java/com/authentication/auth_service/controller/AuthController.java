@@ -12,6 +12,7 @@ import com.authentication.auth_service.dto.RegisterRequest;
 import com.authentication.auth_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,4 +31,10 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<String> getProfile(Authentication authentication) {
+        return ResponseEntity.ok("Hello, " + authentication.getName() + "! This is your profile.");
+    }
+
 }

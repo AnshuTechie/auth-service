@@ -10,6 +10,7 @@ import com.authentication.auth_service.model.User;
 import com.authentication.auth_service.repository.UserRepository;
 import com.authentication.auth_service.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,35 +22,36 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-
+    /**
+     * ✅ Register a new user
+     */
     public AuthResponse register(RegisterRequest request) {
 
-        // ✅ Check if email already exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email is already registered");
         }
 
-        // ✅ Hash the password
         String hashedPassword = passwordEncoder.encode(request.getPassword());
 
-        // ✅ Build user object
         User user = User.builder()
                 .email(request.getEmail())
                 .username(request.getUsername())
                 .password(hashedPassword)
-                .role(Role.USER) // default role
+                .role(Role.USER)
                 .build();
 
-        // ✅ Save to DB
         userRepository.save(user);
 
-        // ✅ Return response
         return new AuthResponse("User registered successfully", user.getEmail());
     }
+
+    /**
+     * ✅ Login and return JWT if credentials are valid
+     */
     public LoginResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
@@ -60,4 +62,11 @@ public class AuthService {
         return new LoginResponse(jwt, user.getEmail(), user.getRole().name());
     }
 
+    /**
+     * ✅ Used by JwtAuthFilter to fetch User by email (from token)
+     */
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    }
 }
