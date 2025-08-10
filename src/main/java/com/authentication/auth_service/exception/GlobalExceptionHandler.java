@@ -4,36 +4,141 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        String errorMessage = ex.getBindingResult().getFieldError().getDefaultMessage();
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        String errorMessage = ex.getBindingResult().getFieldError() != null
+                ? ex.getBindingResult().getFieldError().getDefaultMessage()
+                : "Validation failed";
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessage, request.getRequestURI());
     }
 
-    private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message, String path) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("status", status.value());
-        error.put("message", message);
-        error.put("path", path);
-        return new ResponseEntity<>(error, status);
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message, String path) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                status.value(),
+                message,
+                LocalDateTime.now(),
+                path
+        );
+        return new ResponseEntity<>(errorResponse, status);
     }
 }
 
+
+
+
+
+
+
+
+//package com.authentication.auth_service.exception;
+//
+//import jakarta.servlet.http.HttpServletRequest;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.MethodArgumentNotValidException;
+//import org.springframework.web.bind.annotation.ControllerAdvice;
+//import org.springframework.web.bind.annotation.ExceptionHandler;
+//
+///**
+// * Centralized exception handling for the entire application.
+// * Returns consistent JSON error responses using ErrorResponse DTO.
+// */
+//@ControllerAdvice
+//public class GlobalExceptionHandler {
+//
+//    /**
+//     * Handles all uncaught exceptions.
+//     */
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
+//        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+//    }
+//
+//    /**
+//     * Handles validation errors from @Valid annotated request bodies.
+//     */
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+//        String errorMessage = ex.getBindingResult().getFieldError() != null
+//                ? ex.getBindingResult().getFieldError().getDefaultMessage()
+//                : "Validation failed";
+//        return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessage, request.getRequestURI());
+//    }
+//
+//    /**
+//     * Handles custom EmailAlreadyExistsException.
+//     */
+//    @ExceptionHandler(EmailAlreadyExistsException.class)
+//    public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex, HttpServletRequest request) {
+//        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI());
+//    }
+//
+//    /**
+//     * Helper method to create a standardized error response.
+//     */
+//    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message, String path) {
+//        return new ResponseEntity<>(
+//                ErrorResponse.of(status.value(), message, path),
+//                status
+//        );
+//    }
+//}
+
+
+
+
+
+
+
+//package com.authentication.auth_service.exception;
+//
+//import jakarta.servlet.http.HttpServletRequest;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.MethodArgumentNotValidException;
+//import org.springframework.web.bind.annotation.*;
+//
+//import java.time.LocalDateTime;
+//import java.util.HashMap;
+//import java.util.Map;
+//
+//@ControllerAdvice
+//public class GlobalExceptionHandler {
+//
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<Map<String, Object>> handleException(Exception ex, HttpServletRequest request) {
+//        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+//    }
+//
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+//        String errorMessage = ex.getBindingResult().getFieldError().getDefaultMessage();
+//        return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessage, request.getRequestURI());
+//    }
+//
+//    private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message, String path) {
+//        Map<String, Object> error = new HashMap<>();
+//        error.put("timestamp", LocalDateTime.now());
+//        error.put("status", status.value());
+//        error.put("message", message);
+//        error.put("path", path);
+//        return new ResponseEntity<>(error, status);
+//    }
+//}
+//
 
 
 

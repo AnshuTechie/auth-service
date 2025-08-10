@@ -1,6 +1,8 @@
 package com.authentication.auth_service.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -8,7 +10,4 @@ import lombok.*;
 public class AuthResponse {
     private String message;
     private String email;
-
-    public AuthResponse(String s) {
-    }
 }

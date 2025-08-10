@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for login requests.
+ */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor  // ✅ This creates LoginRequest(String email, String password)
+@AllArgsConstructor
 public class LoginRequest {
     private String email;
     private String password;
