@@ -47,7 +47,7 @@ docker run -d \
 
 
 
-DB connection details:
+**DB connection details:**
 
 
 Host: localhost
@@ -58,7 +58,7 @@ Password: postgres
 
 
 
-📂 Project Structure
+**📂 Project Structure**
 
 src/
  ├── main/java/com/authentication/auth_service/
@@ -74,10 +74,11 @@ src/
  └── test/java/...              # Unit & integration tests
  
  
-🚀 How to Run Locally
+**🚀 How to Run Locally**
+
 1️⃣ Clone the repository
 
-git clone https://github.com/your-username/auth-service.git
+git clone git@github.com:AnshuTechie/auth-service.git
 cd auth-service
 
 2️⃣ Start PostgreSQL
@@ -85,7 +86,8 @@ cd auth-service
 docker start auth-service-postgres
 
 3️⃣ Build the project
-mvn clean install -DskipTests
+
+mvn clean install 
 
 4️⃣ Run the Spring Boot application
 
@@ -101,8 +103,9 @@ Run all unit tests:
 mvn test
 
 
-🔑 API Endpoints
-1. Register User
+**🔑 API Endpoints**
+
+**1. Register User**
 
 POST /auth/register
 Content-Type: application/json
@@ -118,14 +121,45 @@ Request Body:
 }
 
 
-Response:
+A.Response: If role is Invalid
 
+    Failure: Invalid role (400 Bad Request)
+
+{
+  "timestamp": "2025-08-12T10:01:00",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Invalid role. Allowed values: USER, OWNER, ADMIN",
+  "path": "/auth/register"
+}
+
+
+
+B.Response: If email is already registered
+
+Failure: Email already exists (400 Bad Request)
+
+{
+  "timestamp": "2025-08-12T10:00:00",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Email is already registered",
+  "path": "/auth/register"
+}
+
+
+
+C.Response: If if everything is correct
+
+Success : 200(OK)
 
 {
   "message": "User registered successfully",
   "email": "user@example.com"
 }
-2. Login
+
+
+**2. Login**
 
 
 POST /auth/login
@@ -142,7 +176,34 @@ Request Body:
 }
 
 
-Response:
+
+A.Response: If password is wrong
+
+Failure: Wrong password (401 Unauthorized)
+
+{
+  "timestamp": "2025-08-12T10:05:00",
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Invalid credentials",
+  "path": "/auth/login"
+}
+
+B.Response: If email is wrong
+
+Failure: Email not found (404 Not Found)
+
+{
+  "timestamp": "2025-08-12T10:06:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "User not found",
+  "path": "/auth/login"
+}
+
+C.Response: If if everything is correct
+
+Success : 200(OK)
 
 
 {
@@ -150,11 +211,27 @@ Response:
   "email": "user@example.com",
   "role": "USER"
 }
-3. Get Profile (Authenticated)
+
+
+**3. Get Profile (Authenticated)**
 
 GET /auth/profile
 Authorization: Bearer <JWT_TOKEN>
+
 Response:
+
+Profile Info → ID: ccd0cf9d-b841-42b5-8e3e-eb307eec407b, Username: user@example.com
+
+
+
+Response: without bearer token
+
+{
+  "timestamp": "2025-08-10T09:00:00",
+  "status": 403,
+  "message": "Access Denied",
+  "path": "/admin/dashboard"
+}
 
 
 Hello, user@example.com! This is your profile.
@@ -167,11 +244,3 @@ GET /owner/dashboard → requires OWNER role
 
 GET /user/dashboard → requires USER role
 
-If you try without the correct role, you'll get:
-
-{
-  "timestamp": "2025-08-10T09:00:00",
-  "status": 403,
-  "message": "Access Denied",
-  "path": "/admin/dashboard"
-}
